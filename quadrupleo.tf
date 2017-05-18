@@ -192,6 +192,52 @@ resource "openstack_compute_floatingip_associate_v2" "float6" {
   instance_id = "${openstack_compute_instance_v2.HAProxy.id}"
 }
 
+resource "openstack_networking_floatingip_v2" "float7" {
+  pool       = "${var.pool}"
+}
+
+resource "openstack_compute_instance_v2" "ansible" {
+  name            = "ansible"
+  image_name      = "${var.image}"
+  flavor_name     = "${var.flavor}"
+  #key_pair        = "${openstack_compute_keypair_v2.openshift.name}"
+  key_pair        = "${var.compute_keypair}"
+  security_groups = ["${openstack_compute_secgroup_v2.openshift.name}"]
+  user_data       = "${var.user_data}"
+
+  network {
+    uuid = "${openstack_networking_network_v2.openshift.id}"
+  }
+}
+
+resource "openstack_compute_floatingip_associate_v2" "float7" {
+  floating_ip = "${openstack_networking_floatingip_v2.float7.address}"
+  instance_id = "${openstack_compute_instance_v2.ansible.id}"
+}
+
+resource "openstack_networking_floatingip_v2" "float8" {
+  pool       = "${var.pool}"
+}
+
+resource "openstack_compute_instance_v2" "nfsshare" {
+  name            = "nfsshare"
+  image_name      = "${var.image}"
+  flavor_name     = "${var.flavor}"
+  #key_pair        = "${openstack_compute_keypair_v2.openshift.name}"
+  key_pair        = "${var.compute_keypair}"
+  security_groups = ["${openstack_compute_secgroup_v2.openshift.name}"]
+  user_data       = "${var.user_data}"
+
+  network {
+    uuid = "${openstack_networking_network_v2.openshift.id}"
+  }
+}
+
+resource "openstack_compute_floatingip_associate_v2" "float8" {
+  floating_ip = "${openstack_networking_floatingip_v2.float8.address}"
+  instance_id = "${openstack_compute_instance_v2.nfsshare.id}"
+}
+
 resource "openstack_compute_instance_v2" "etcd1" {
   name            = "etcd1"
   image_name      = "${var.image}"
