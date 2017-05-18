@@ -1,5 +1,5 @@
 output "address" {
-  value = "${openstack_compute_floatingip_v2.float6.address}"
+  value = "${openstack_networking_floatingip_v2.float6.address}"
 }
 
 

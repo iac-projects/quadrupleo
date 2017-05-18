@@ -45,5 +45,10 @@ variable "external_gateway" {
 
 variable "pool" {
   description = "external folating ip pool"
-  #default = "public"
+  default = "public"
+}
+
+variable "compute_keypair" {
+  description = "keypair"
+  default = "default"
 }
