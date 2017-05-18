@@ -52,3 +52,7 @@ variable "compute_keypair" {
   description = "keypair"
   default = "default"
 }
+
+variable "user_data" {
+  description = "add yum proxy."
+}

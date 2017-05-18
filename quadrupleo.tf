@@ -53,6 +53,7 @@ resource "openstack_compute_instance_v2" "master1" {
   key_pair        = "${var.compute_keypair}"
   security_groups = ["${openstack_compute_secgroup_v2.openshift.name}"]
   #floating_ip     = "${openstack_compute_floatingip_v2.float1.address}"
+  user_data       = "${var.user_data}"
 
   network {
     uuid = "${openstack_networking_network_v2.openshift.id}"
@@ -78,6 +79,7 @@ resource "openstack_compute_instance_v2" "master2" {
   key_pair        = "${var.compute_keypair}"
   security_groups = ["${openstack_compute_secgroup_v2.openshift.name}"]
   #floating_ip     = "${openstack_compute_floatingip_v2.float2.address}"
+  user_data       = "${var.user_data}"
 
   network {
     uuid = "${openstack_networking_network_v2.openshift.id}"
@@ -103,6 +105,7 @@ resource "openstack_compute_instance_v2" "master3" {
   key_pair        = "${var.compute_keypair}"
   security_groups = ["${openstack_compute_secgroup_v2.openshift.name}"]
   #floating_ip     = "${openstack_compute_floatingip_v2.float3.address}"
+  user_data       = "${var.user_data}"
 
   network {
     uuid = "${openstack_networking_network_v2.openshift.id}"
@@ -128,6 +131,7 @@ resource "openstack_compute_instance_v2" "node1" {
   key_pair        = "${var.compute_keypair}"
   security_groups = ["${openstack_compute_secgroup_v2.openshift.name}"]
   #floating_ip     = "${openstack_compute_floatingip_v2.float4.address}"
+  user_data       = "${var.user_data}"
 
   network {
     uuid = "${openstack_networking_network_v2.openshift.id}"
@@ -153,6 +157,7 @@ resource "openstack_compute_instance_v2" "node2" {
   key_pair        = "${var.compute_keypair}"
   security_groups = ["${openstack_compute_secgroup_v2.openshift.name}"]
   #floating_ip     = "${openstack_compute_floatingip_v2.float5.address}"
+  user_data       = "${var.user_data}"
 
   network {
     uuid = "${openstack_networking_network_v2.openshift.id}"
@@ -175,6 +180,7 @@ resource "openstack_compute_instance_v2" "HAProxy" {
   #key_pair        = "${openstack_compute_keypair_v2.openshift.name}"
   key_pair        = "${var.compute_keypair}"
   security_groups = ["${openstack_compute_secgroup_v2.openshift.name}"]
+  user_data       = "${var.user_data}"
 
   network {
     uuid = "${openstack_networking_network_v2.openshift.id}"
@@ -193,6 +199,7 @@ resource "openstack_compute_instance_v2" "etcd1" {
   #key_pair        = "${openstack_compute_keypair_v2.openshift.name}"
   key_pair        = "${var.compute_keypair}"
   security_groups = ["${openstack_compute_secgroup_v2.openshift.name}"]
+  user_data       = "${var.user_data}"
 
   network {
     uuid = "${openstack_networking_network_v2.openshift.id}"
@@ -206,6 +213,7 @@ resource "openstack_compute_instance_v2" "etcd2" {
   #key_pair        = "${openstack_compute_keypair_v2.openshift.name}"
   key_pair        = "${var.compute_keypair}"
   security_groups = ["${openstack_compute_secgroup_v2.openshift.name}"]
+  user_data       = "${var.user_data}"
 
   network {
     uuid = "${openstack_networking_network_v2.openshift.id}"
@@ -219,9 +227,9 @@ resource "openstack_compute_instance_v2" "etcd3" {
   #key_pair        = "${openstack_compute_keypair_v2.openshift.name}"
   key_pair        = "${var.compute_keypair}"
   security_groups = ["${openstack_compute_secgroup_v2.openshift.name}"]
+  user_data       = "${var.user_data}"
 
   network {
     uuid = "${openstack_networking_network_v2.openshift.id}"
   }
 }
-
