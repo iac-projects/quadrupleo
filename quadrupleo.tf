@@ -1,4 +1,5 @@
 provider "openstack" {
+    domain_name = "${var.domain_name}"
     user_name  = "${var.user_name}"
     tenant_name = "${var.tenant_name}"
     password  = "${var.password}"
@@ -23,7 +24,7 @@ resource "openstack_networking_subnet_v2" "openshift" {
   network_id      = "${openstack_networking_network_v2.openshift.id}"
   cidr            = "10.0.0.0/24"
   ip_version      = 4
-  dns_nameservers = ["8.8.8.8", "8.8.4.4"]
+  dns_nameservers = ["10.238.19.24", "8.8.8.8"]
 }
 
 resource "openstack_networking_router_v2" "openshift" {

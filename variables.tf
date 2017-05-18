@@ -1,4 +1,8 @@
 #
+variable "domain_name" {
+   description = "The OpenStack domain name"  
+}
+
 variable "user_name" {
    description = "The OpenStack Tenant user name"  
 }
