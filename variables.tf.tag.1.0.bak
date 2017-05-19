@@ -43,10 +43,6 @@ variable "external_gateway" {
   description = "the id of your external gateway"
 }
 
-variable "network_name" {
-  description = "network name"
-}
-
 variable "pool" {
   description = "external folating ip pool"
   default = "public"

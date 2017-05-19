@@ -7,4 +7,5 @@ image = "centos72"
 pool = "public"
 domain_name = "default"
 compute_keypair = "default"
+network_name = "public" #vlan network
 user_data = "sudo sed -i '$a proxy=http://opscloud:cloud0518@10.53.13.245:3128/' /etc/yum.conf"

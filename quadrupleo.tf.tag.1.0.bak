@@ -1,0 +1,296 @@
+provider "openstack" {
+    domain_name = "${var.domain_name}"
+    user_name  = "${var.user_name}"
+    tenant_name = "${var.tenant_name}"
+    password  = "${var.password}"
+    auth_url  = "${var.auth_url}"
+}
+
+# we don't need the pub key with our golden image
+/*
+resource "openstack_compute_keypair_v2" "openshift" {
+  name       = "openshift"
+  public_key = "${file("${var.ssh_key_file}.pub")}"
+}
+*/
+
+resource "openstack_networking_network_v2" "openshift" {
+  name           = "openshift"
+  admin_state_up = "true"
+}
+
+resource "openstack_networking_subnet_v2" "openshift" {
+  name            = "openshift"
+  network_id      = "${openstack_networking_network_v2.openshift.id}"
+  cidr            = "10.0.0.0/24"
+  ip_version      = 4
+  dns_nameservers = ["10.238.19.24", "8.8.8.8"]
+}
+
+resource "openstack_networking_router_v2" "openshift" {
+  name             = "openshift"
+  admin_state_up   = "true"
+  external_gateway = "${var.external_gateway}"
+}
+
+resource "openstack_networking_router_interface_v2" "openshift" {
+  router_id = "${openstack_networking_router_v2.openshift.id}"
+  subnet_id = "${openstack_networking_subnet_v2.openshift.id}"
+}
+
+#resource "openstack_compute_floatingip_v2" "float1" {
+resource "openstack_networking_floatingip_v2" "float1" {
+  pool       = "${var.pool}"
+  #depends_on = ["openstack_networking_router_interface_v2.openshift"]
+}
+
+
+resource "openstack_compute_instance_v2" "master1" {
+  name            = "master1"
+  image_name      = "${var.image}"
+  flavor_name     = "${var.flavor}"
+  #key_pair        = "${openstack_compute_keypair_v2.openshift.name}"
+  key_pair        = "${var.compute_keypair}"
+  security_groups = ["${openstack_compute_secgroup_v2.openshift.name}"]
+  #floating_ip     = "${openstack_compute_floatingip_v2.float1.address}"
+  user_data       = "${var.user_data}"
+
+  network {
+    uuid = "${openstack_networking_network_v2.openshift.id}"
+  }
+}
+####add by xiao,remove waring: [DEPRECATED] Use the openstack_compute_floatingip_associate_v2 resource instead.
+resource "openstack_compute_floatingip_associate_v2" "float1" {
+  floating_ip = "${openstack_networking_floatingip_v2.float1.address}"
+  instance_id = "${openstack_compute_instance_v2.master1.id}"
+}
+
+resource "openstack_compute_volume_attach_v2" "mv_1" {
+  instance_id = "${openstack_compute_instance_v2.master1.id}"
+  volume_id   = "${openstack_blockstorage_volume_v2.volume1.id}"
+}
+
+#resource "openstack_compute_floatingip_v2" "float2" {
+resource "openstack_networking_floatingip_v2" "float2" {
+  pool       = "${var.pool}"
+  #depends_on = ["openstack_networking_router_interface_v2.openshift"]
+}
+
+resource "openstack_compute_instance_v2" "master2" {
+  name            = "master2"
+  image_name      = "${var.image}"
+  flavor_name     = "${var.flavor}"
+  #key_pair        = "${openstack_compute_keypair_v2.openshift.name}"
+  key_pair        = "${var.compute_keypair}"
+  security_groups = ["${openstack_compute_secgroup_v2.openshift.name}"]
+  #floating_ip     = "${openstack_compute_floatingip_v2.float2.address}"
+  user_data       = "${var.user_data}"
+
+  network {
+    uuid = "${openstack_networking_network_v2.openshift.id}"
+  }
+}
+
+resource "openstack_compute_floatingip_associate_v2" "float2" {
+  floating_ip = "${openstack_networking_floatingip_v2.float2.address}"
+  instance_id = "${openstack_compute_instance_v2.master2.id}"
+}
+
+#resource "openstack_compute_floatingip_v2" "float3" {
+resource "openstack_networking_floatingip_v2" "float3" {
+  pool       = "${var.pool}"
+  #depends_on = ["openstack_networking_router_interface_v2.openshift"]
+}
+
+resource "openstack_compute_instance_v2" "master3" {
+  name            = "master3"
+  image_name      = "${var.image}"
+  flavor_name     = "${var.flavor}"
+  #key_pair        = "${openstack_compute_keypair_v2.openshift.name}"
+  key_pair        = "${var.compute_keypair}"
+  security_groups = ["${openstack_compute_secgroup_v2.openshift.name}"]
+  #floating_ip     = "${openstack_compute_floatingip_v2.float3.address}"
+  user_data       = "${var.user_data}"
+
+  network {
+    uuid = "${openstack_networking_network_v2.openshift.id}"
+  }
+}
+
+resource "openstack_compute_floatingip_associate_v2" "float3" {
+  floating_ip = "${openstack_networking_floatingip_v2.float3.address}"
+  instance_id = "${openstack_compute_instance_v2.master3.id}"
+}
+
+#resource "openstack_compute_floatingip_v2" "float4" {
+resource "openstack_networking_floatingip_v2" "float4" {
+  pool       = "${var.pool}"
+  #depends_on = ["openstack_networking_router_interface_v2.openshift"]
+}
+
+resource "openstack_compute_instance_v2" "node1" {
+  name            = "node1"
+  image_name      = "${var.image}"
+  flavor_name     = "${var.flavor}"
+  #key_pair        = "${openstack_compute_keypair_v2.openshift.name}"
+  key_pair        = "${var.compute_keypair}"
+  security_groups = ["${openstack_compute_secgroup_v2.openshift.name}"]
+  #floating_ip     = "${openstack_compute_floatingip_v2.float4.address}"
+  user_data       = "${var.user_data}"
+
+  network {
+    uuid = "${openstack_networking_network_v2.openshift.id}"
+  }
+}
+
+resource "openstack_compute_floatingip_associate_v2" "float4" {
+  floating_ip = "${openstack_networking_floatingip_v2.float4.address}"
+  instance_id = "${openstack_compute_instance_v2.node1.id}"
+}
+
+resource "openstack_compute_volume_attach_v2" "mv_2" {
+  instance_id = "${openstack_compute_instance_v2.node1.id}"
+  volume_id   = "${openstack_blockstorage_volume_v2.volume2.id}"
+}
+
+#resource "openstack_compute_floatingip_v2" "float5" {
+resource "openstack_networking_floatingip_v2" "float5" {
+  pool       = "${var.pool}"
+  #depends_on = ["openstack_networking_router_interface_v2.openshift"]
+}
+
+resource "openstack_compute_instance_v2" "node2" {
+  name            = "node2"
+  image_name      = "${var.image}"
+  flavor_name     = "${var.flavor}"
+  #key_pair        = "${openstack_compute_keypair_v2.openshift.name}"
+  key_pair        = "${var.compute_keypair}"
+  security_groups = ["${openstack_compute_secgroup_v2.openshift.name}"]
+  #floating_ip     = "${openstack_compute_floatingip_v2.float5.address}"
+  user_data       = "${var.user_data}"
+
+  network {
+    uuid = "${openstack_networking_network_v2.openshift.id}"
+  }
+}
+
+resource "openstack_compute_floatingip_associate_v2" "float5" {
+  floating_ip = "${openstack_networking_floatingip_v2.float5.address}"
+  instance_id = "${openstack_compute_instance_v2.node2.id}"
+}
+
+resource "openstack_compute_volume_attach_v2" "mv_3" {
+  instance_id = "${openstack_compute_instance_v2.node2.id}"
+  volume_id   = "${openstack_blockstorage_volume_v2.volume3.id}"
+}
+
+resource "openstack_networking_floatingip_v2" "float6" {
+  pool       = "${var.pool}"
+}
+
+resource "openstack_compute_instance_v2" "HAProxy" {
+  name            = "HAProxy"
+  image_name      = "${var.image}"
+  flavor_name     = "${var.flavor}"
+  #key_pair        = "${openstack_compute_keypair_v2.openshift.name}"
+  key_pair        = "${var.compute_keypair}"
+  security_groups = ["${openstack_compute_secgroup_v2.openshift.name}"]
+  user_data       = "${var.user_data}"
+
+  network {
+    uuid = "${openstack_networking_network_v2.openshift.id}"
+  }
+}
+
+resource "openstack_compute_floatingip_associate_v2" "float6" {
+  floating_ip = "${openstack_networking_floatingip_v2.float6.address}"
+  instance_id = "${openstack_compute_instance_v2.HAProxy.id}"
+}
+
+resource "openstack_networking_floatingip_v2" "float7" {
+  pool       = "${var.pool}"
+}
+
+resource "openstack_compute_instance_v2" "ansible" {
+  name            = "ansible"
+  image_name      = "${var.image}"
+  flavor_name     = "${var.flavor}"
+  #key_pair        = "${openstack_compute_keypair_v2.openshift.name}"
+  key_pair        = "${var.compute_keypair}"
+  security_groups = ["${openstack_compute_secgroup_v2.openshift.name}"]
+  user_data       = "${var.user_data}"
+
+  network {
+    uuid = "${openstack_networking_network_v2.openshift.id}"
+  }
+}
+
+resource "openstack_compute_floatingip_associate_v2" "float7" {
+  floating_ip = "${openstack_networking_floatingip_v2.float7.address}"
+  instance_id = "${openstack_compute_instance_v2.ansible.id}"
+}
+
+resource "openstack_networking_floatingip_v2" "float8" {
+  pool       = "${var.pool}"
+}
+
+resource "openstack_compute_instance_v2" "nfsshare" {
+  name            = "nfsshare"
+  image_name      = "${var.image}"
+  flavor_name     = "${var.flavor}"
+  #key_pair        = "${openstack_compute_keypair_v2.openshift.name}"
+  key_pair        = "${var.compute_keypair}"
+  security_groups = ["${openstack_compute_secgroup_v2.openshift.name}"]
+  user_data       = "${var.user_data}"
+
+  network {
+    uuid = "${openstack_networking_network_v2.openshift.id}"
+  }
+}
+
+resource "openstack_compute_floatingip_associate_v2" "float8" {
+  floating_ip = "${openstack_networking_floatingip_v2.float8.address}"
+  instance_id = "${openstack_compute_instance_v2.nfsshare.id}"
+}
+
+resource "openstack_compute_instance_v2" "etcd1" {
+  name            = "etcd1"
+  image_name      = "${var.image}"
+  flavor_name     = "${var.flavor}"
+  #key_pair        = "${openstack_compute_keypair_v2.openshift.name}"
+  key_pair        = "${var.compute_keypair}"
+  security_groups = ["${openstack_compute_secgroup_v2.openshift.name}"]
+  user_data       = "${var.user_data}"
+
+  network {
+    uuid = "${openstack_networking_network_v2.openshift.id}"
+  }
+}
+
+resource "openstack_compute_instance_v2" "etcd2" {
+  name            = "etcd2"
+  image_name      = "${var.image}"
+  flavor_name     = "${var.flavor}"
+  #key_pair        = "${openstack_compute_keypair_v2.openshift.name}"
+  key_pair        = "${var.compute_keypair}"
+  security_groups = ["${openstack_compute_secgroup_v2.openshift.name}"]
+  user_data       = "${var.user_data}"
+
+  network {
+    uuid = "${openstack_networking_network_v2.openshift.id}"
+  }
+}
+
+resource "openstack_compute_instance_v2" "etcd3" {
+  name            = "etcd3"
+  image_name      = "${var.image}"
+  flavor_name     = "${var.flavor}"
+  #key_pair        = "${openstack_compute_keypair_v2.openshift.name}"
+  key_pair        = "${var.compute_keypair}"
+  security_groups = ["${openstack_compute_secgroup_v2.openshift.name}"]
+  user_data       = "${var.user_data}"
+
+  network {
+    uuid = "${openstack_networking_network_v2.openshift.id}"
+  }
+}
