@@ -65,6 +65,11 @@ resource "openstack_compute_floatingip_associate_v2" "float1" {
   instance_id = "${openstack_compute_instance_v2.master1.id}"
 }
 
+resource "openstack_compute_volume_attach_v2" "mv_1" {
+  instance_id = "${openstack_compute_instance_v2.master1.id}"
+  volume_id   = "${openstack_blockstorage_volume_v2.volume1.id}"
+}
+
 #resource "openstack_compute_floatingip_v2" "float2" {
 resource "openstack_networking_floatingip_v2" "float2" {
   pool       = "${var.pool}"
@@ -143,6 +148,11 @@ resource "openstack_compute_floatingip_associate_v2" "float4" {
   instance_id = "${openstack_compute_instance_v2.node1.id}"
 }
 
+resource "openstack_compute_volume_attach_v2" "mv_2" {
+  instance_id = "${openstack_compute_instance_v2.node1.id}"
+  volume_id   = "${openstack_blockstorage_volume_v2.volume2.id}"
+}
+
 #resource "openstack_compute_floatingip_v2" "float5" {
 resource "openstack_networking_floatingip_v2" "float5" {
   pool       = "${var.pool}"
@@ -167,6 +177,11 @@ resource "openstack_compute_instance_v2" "node2" {
 resource "openstack_compute_floatingip_associate_v2" "float5" {
   floating_ip = "${openstack_networking_floatingip_v2.float5.address}"
   instance_id = "${openstack_compute_instance_v2.node2.id}"
+}
+
+resource "openstack_compute_volume_attach_v2" "mv_3" {
+  instance_id = "${openstack_compute_instance_v2.node2.id}"
+  volume_id   = "${openstack_blockstorage_volume_v2.volume3.id}"
 }
 
 resource "openstack_networking_floatingip_v2" "float6" {
